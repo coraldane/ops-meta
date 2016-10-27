@@ -7,7 +7,7 @@
         "port": 2000
     },
     "database": {
-        "dsn": "root:mysql@udai@tcp(udai.com:3306)/meta?charset=utf8&parseTime=true",
+        "dsn": "root:passwd@tcp(***:3306)/meta?charset=utf8&parseTime=true",
         "max_idle": 5
     }
 }
