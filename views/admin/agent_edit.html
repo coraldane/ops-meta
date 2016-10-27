@@ -1,0 +1,143 @@
+{{template "layout/head.html" .}}
+
+<div class="main-md">
+ 		<form id="itemForm" class="form-horizontal validate">
+ 			<input type="hidden" name="Id" value="{{.entity.Id}}"/>
+ 			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">名称:</label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="Name"
+						 placeholder="" value="{{.entity.Name}}" />
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">版本号: </label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="Version"
+						 placeholder="" value="{{.entity.Version}}" />
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">运行用户:</label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="RunUser"
+						 placeholder="操作系统的用户名" size="20" value="{{.entity.RunUser}}"/>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">工作目录:</label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="WorkDir"
+						 placeholder="请使用绝对路径" value="{{.entity.WorkDir}}"/>
+				</div>
+				<div class="col-xs-3">
+					<span class="info">系统会自动创建Agent名称目录</span>
+				</div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">下载地址: </label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="Tarball"
+						 placeholder="" value="{{.entity.Tarball}}"/>
+				</div>
+				<div class="col-xs-3">
+					<span class="info">不要包含类似linux_amd64及其之后的内容</span>
+				</div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">MD5: </label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="Md5"
+						 placeholder="压缩包的MD5值" value="{{.entity.Md5}}"/>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">指令状态: </label>
+				<div class="col-xs-7">
+					<select class="form-control" name="Cmd">
+						<option value="start">Start</option>
+						<option value="stop">Stop</option>
+					</select>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">配置文件路径: </label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="ConfigFileName"
+						 placeholder="相对工作目录的路径" value="{{.entity.ConfigFileName}}"/>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+ 				<label class="col-xs-2 control-label">远程配置文件: </label>
+				<div class="col-xs-7">
+					<input type="text" class="form-control" name="ConfigRemoteUrl"
+						 placeholder="" value="{{.entity.ConfigRemoteUrl}}"/>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+			<div class="form-group row">
+				<div class="col-xs-2"></div>
+				<div class="col-xs-7">
+					<div class="btn-group">
+						<input type="button" class="btn btn-success" value=" 保 存 " onclick="saveNode(this)"/>
+						{{if ne 0 .entity.Id}}
+						<input type="button" class="btn btn-danger" value=" 删 除 " onclick="deleteNode(this)"/>
+						{{end}}
+					</div>
+				</div>
+				<div class="col-xs-3"></div>
+			</div>
+ 		</form>
+ 	</div>
+
+{{template "layout/scripts.html" .}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("SELECT[name='Cmd']").val("{{.entity.Cmd}}");
+});
+
+function saveNode(target){
+	var form = $("#itemForm");
+	var validator = $(form).validate({meta:"validate"});
+	if(validator.form()){
+		$(form).goAjax({semantic: false,
+			url: "admin/agent/save",
+			data:{},
+			success: function(jsonData) {
+				if(true == jsonData.success){
+       				$.message("保存成功", {onclose: function(){
+       					var dialog = top.dialog.get(window);
+						dialog.close(true);
+						dialog.remove();
+       				}});
+       			} else {
+       				$.message('保存失败: ' + jsonData.message);
+       			}
+			}
+		});
+	}
+}
+
+function deleteNode(target){
+	$.postEx("admin/agent/delete", {Id: {{.entity.Id}}}, function(jsonData){
+		if(true == jsonData.success){
+       		$.message("保存成功", {onclose: function(){
+       			var dialog = top.dialog.get(window);
+				dialog.close(true);
+				dialog.remove();
+       		}});
+       	} else {
+       		$.message('保存失败: ' + jsonData.message);
+       	}
+	}, "json");
+}
+</script>
+
+{{template "layout/foot.html" .}}

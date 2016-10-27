@@ -1,0 +1,73 @@
+{{template "layout/head.html" .}}
+
+<div class="main row" style="min-height: 400px;">
+	{{if not (empty .Error)}}
+		<div class="alert alert-danger">{{.Error}}</div>
+	{{end}}
+	<div class="highlight" style="width: 100%;">Desired Agents</div>
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>名称</th>
+				<th>版本号</th>
+				<th>运行用户</th>
+				<th>工作目录</th>
+				<th>MD5</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{range $index, $val := .DesiredAgentList}}
+		<tr>
+			<td>{{$val.Name}}</td>
+			<td>{{$val.Version}}</td>
+			<td>{{$val.RunUser}}</td>
+			<td>{{$val.WorkDir}}</td>
+			<td>{{$val.Md5}}</td>
+		</tr>
+		{{end}}
+		{{if eq 0 (len .DesiredAgentList)}}
+			<tr><td colspan="5">未找到符合条件的记录</td></tr>
+		{{end}}
+		</tbody>
+	</table>
+	<div class="clearfix" style="height: 10px;"></div>
+	<div class="alert alert-info" style="width: 100%;">Real Agents</div>
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>名称</th>
+				<th>版本号</th>
+				<th>运行用户</th>
+				<th>工作目录</th>
+				<th>运行状态</th>
+				<th>报告时间</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{range $index, $val := .RealAgentList}}
+		<tr>
+			<td>{{$val.AgentName}}</td>
+			<td>{{$val.AgentVersion}}</td>
+			<td>{{$val.RunUser}}</td>
+			<td>{{$val.WorkDir}}</td>
+			<td>{{$val.Status}}</td>
+			<td>{{datetime $val.GmtReport}}</td>
+		</tr>
+		{{end}}
+		{{if eq 0 (len .RealAgentList)}}
+			<tr><td colspan="6">未找到符合条件的记录</td></tr>
+		{{end}}
+		</tbody>
+	</table>
+
+</div>
+
+{{template "layout/scripts.html" .}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+	
+});
+</script>
+
+{{template "layout/foot.html" .}}

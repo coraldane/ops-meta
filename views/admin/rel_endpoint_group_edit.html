@@ -1,0 +1,37 @@
+<div class="highlight">
+	<input type="hidden" name="Id" value="{{.entity.Id}}"/>
+ 	<div class="form-group row">
+ 		<label class="col-xs-2 control-label">关联类型:</label>
+		<div class="col-xs-3">
+			<select class="form-control" name="relType">
+				<option value="fixed" {{if eq "fixed" .entity.RelType}}selected{{end}}>固定值</option>
+				<option value="regex" {{if eq "regex" .entity.RelType}}selected{{end}}>正则</option>
+			</select>
+		</div>
+ 		<label class="col-xs-2 control-label">关联属性:</label>
+		<div class="col-xs-3">
+			<select class="form-control" name="propName">
+				<option value="hostname" {{if eq "hostname" .entity.PropName}}selected{{end}}>Hostname</option>
+				<option value="ip" {{if eq "ip" .entity.PropName}}selected{{end}}>IP</option>
+			</select>
+		</div>
+		<div class="col-xs-2"></div>
+	</div>
+	<div class="form-group row">
+ 		<label class="col-xs-2 control-label">关联值:</label>
+		<div class="col-xs-8">
+			<textarea rows="4" cols="60" class="form-control" name="propValue"
+				 placeholder="" required="不能为空">{{.entity.PropValue}}</textarea>
+		</div>
+		<div class="col-xs-2"></div>
+	</div>
+	<div class="form-group row">
+		<div class="col-xs-2"></div>
+		<div class="col-xs-8">
+			<div class="btn-group">
+				<input type="button" class="btn btn-success" value=" 保 存 " onclick="saveNode(this)"/>
+			</div>
+		</div>
+		<div class="col-xs-2"></div>
+	</div>
+</div>

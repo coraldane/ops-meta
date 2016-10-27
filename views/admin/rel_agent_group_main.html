@@ -1,0 +1,100 @@
+{{template "layout/head.html" .}}
+
+<div class="main-md row" style="min-height: 400px;">
+	<form id="itemForm" class="form-inline validate">
+		<input type="hidden" id="agentId" name="agentId" value="{{.agentId}}"/>
+		<div class="form-group">
+			<input type="hidden" id="hostGroupId" name="hostGroupId"/>
+			<input type="text" class="form-control" name="groupName" size="30" placeholder="HostGroup名称" />
+			<button type="button" class="btn btn-success" onclick="saveNode(this,'{{.agentId}}')">绑定HostGroup</button>
+		</div>
+	</form>
+	<div class="clearfix" style="height: 10px;"></div>
+	<table class="table table-bordered table-striped">
+		<thead>
+			<tr>
+				<th>ID</th>
+				<th>HostGroup</th>
+				<th>创建时间</th>
+				<th>修改时间</th>
+				<th>操作</th>
+			</tr>
+		</thead>
+		<tbody>
+		{{range $index, $val := .items}}
+		<tr>
+			<td>{{$val.HostGroupId}}</td>
+			<td>{{$val.GroupName}}</td>
+			<td>{{datetime $val.GmtCreate}}</td>
+			<td>{{datetime $val.GmtModified}}</td>
+			<td>
+				<button type="button" class="btn btn-default" onclick="deleteNode(this,'{{$val.Id}}')">删除</button>
+			</td>
+		</tr>
+		{{end}}
+		{{if eq 0 (len .items)}}
+			<tr><td colspan="5">未找到符合条件的记录</td></tr>
+		{{end}}
+		</tbody>
+	</table>
+</div>
+
+{{template "layout/scripts.html" .}}
+<script type="text/javascript" src="http://cdn.tarzip.com/static/bootstrap/js/bootstrap.autocomplete.js"></script>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("INPUT[name='groupName']").autocomplete({
+        source:function(query,process){
+            var matchCount = this.options.items;
+            $.post("admin/hostGroup/query",{"groupName":query,"pageSize":matchCount},function(jsonData){
+                return process(jsonData.items);
+            }, "json");
+        },
+        formatItem:function(item){
+            return item["Id"]  + "-" + item["GroupName"];
+        },
+        setValue:function(item){
+            return {'data-value':item["GroupName"], 'real-value': item["Id"]};
+        },
+        updater: function (item){
+        	$(item.target).prev().val(item["real-value"]);
+        	return item["data-value"];
+        }
+    });
+});
+
+function saveNode(target){
+	var form = $("#itemForm");
+	var validator = $(form).validate({meta:"validate"});
+	if(validator.form()){
+		$(form).goAjax({semantic: false,
+			url: "admin/relAgentGroup/save",
+			data:{},
+			success: function(jsonData) {
+				if(true == jsonData.success){
+       				$.message("保存成功", {onclose: function(){
+       					window.location.reload();
+       				}});
+       			} else {
+       				$.message('保存失败: ' + jsonData.message);
+       			}
+			}
+		});
+	}
+}
+
+function deleteNode(target, id){
+	$.postEx("admin/relAgentGroup/delete", {Id: id}, function(jsonData){
+		if(true == jsonData.success){
+       		$.message("保存成功", {onclose: function(){
+       			window.location.reload();
+       		}});
+       	} else {
+       		$.message('保存失败: ' + jsonData.message);
+       	}
+	}, "json");
+}
+</script>
+
+{{template "layout/foot.html" .}}

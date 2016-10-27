@@ -1,0 +1,126 @@
+<div class="clearfix" style="height: 10px;"></div>
+<div class="main">
+	<div class="highlight">
+		<form id="itemForm" class="form-inline">
+			<div class="form-group">
+				<label class="control-label">名称: </label>
+				<input type="text" class="form-control" name="groupName" size="20"/>
+			</div>
+			<button type="button" class="btn btn-info" onclick="doSearch()"><span class="glyphicon glyphicon-search"></span> 查 询</button>
+			<a class="btn btn-href" onclick="editNode(this, 0)">新 增</a>
+		</form>
+	</div>
+	<div class="clearfix" style="height:10px;"></div>
+	<table id="data-table"></table>
+</div>
+
+<script type="text/javascript">
+$(document).ready(function(){
+	queryForList();
+});
+
+function doSearch() {
+	$('#data-table').bootstrapTable('refresh', {silent : true});
+}
+
+function queryForList() {
+	$('#data-table').bootstrapTable({
+		method : 'post',
+		url : 'admin/hostGroup/query',
+		queryParams : function(params) {
+			return $.extend($("#itemForm").formToJSON(), params);
+		},
+		cache : false,
+		striped : true,
+		pagination : true,
+		showRefresh : false,
+		sidePagination : 'server',
+		pageSize : 10,
+		striped : true,
+		pageList : [ 10, 20, 50, 100 ],
+		minimumCountColumns : 2,
+		clickToSelect : true,
+		formatShowingRows : function(pageFrom, pageTo, totalRows) {
+			return '显示第 ' + pageFrom + ' 到第 ' + pageTo + ' 条记录，总共 ' + totalRows + ' 条记录';
+		},
+		formatRecordsPerPage : function(pageNumber) {
+			return '每页显示 ' + pageNumber + ' 条记录';
+		},
+		columns : [
+			{
+				field : 'Id',
+				title : '序号',
+				formatter : function(value, row, index) {
+					var options = $('#data-table').bootstrapTable('getOptions');
+					return (options.pageNumber -1) * options.pageSize + index + 1;
+				}
+			},
+			{
+				field : 'Id',
+				title : 'ID'
+			},
+			{
+				field : 'GroupName',
+				title : '名称'
+			},
+			{
+				field : 'GmtCreate',
+				title : '创建时间',
+				formatter : function(value, row, index) {
+					return new Date(value).format("yyyy-MM-dd hh:mm:ss");
+				}
+			},
+			{
+				field : 'GmtModified',
+				title : '最近修改时间',
+				formatter : function(value, row, index) {
+					return new Date(value).format("yyyy-MM-dd hh:mm:ss");
+				}
+			},
+			{
+				field : 'Id',
+				title : '操作',
+				formatter : function(value, row, index) {
+					var strArray = new Array();
+					strArray.push('<div class="btn-group">');
+					strArray.push('<button type="button" class="btn btn-default" onclick="editNode(this,\''+row.GroupName+'\')"> 编辑 </button>');
+					strArray.push('<button type="button" class="btn btn-default" onclick="bindRelation(this,\''+row.Id+'\',\''+row.GroupName+'\')"> 机器绑定 </button>');
+					strArray.push('</div>');
+					return strArray.join('');
+				}
+			}
+		],
+		responseHandler : function(res) {
+			return {
+				rows : null == res.items?[]:res.items,
+				total : res.total
+			}
+		}
+	});
+}
+
+function editNode(target, name){
+	var d = dialog({title: 'loading... ',
+		url: 'admin/hostGroup/edit/?name='+ name,
+		oniframeload: function () {
+			this.title('编辑HostGroup');
+		}
+	});
+	d.addEventListener("close", function(){
+		if(this.returnValue){
+			doSearch();
+		}
+	});
+	d.showModal();
+}
+
+function bindRelation(target, groupId, groupName){
+	dialog({title: 'loading... ',
+		url: 'admin/relEndpointGroup/'+ groupId,
+		oniframeload: function () {
+			this.title('机器绑定[HostGroup:' + groupName + ']');
+		},
+		width: 900, height: 620
+	}).showModal();
+}
+</script>

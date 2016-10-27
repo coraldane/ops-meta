@@ -1,0 +1,11 @@
+<script type="text/javascript">
+$(document).ready(function(){
+	$(".navbar-nav").find("A").each(function(i, obj){
+		if($(obj).attr("href") == "{{.CurrentActionPath}}"){
+			$(obj).parent().addClass("active");
+		}
+	});
+});
+</script>
+</body>
+</html>

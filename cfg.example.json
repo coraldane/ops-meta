@@ -1,0 +1,13 @@
+{
+    "log_level": "debug",
+    "refresh_interval": 300,
+    "listen": {
+        "protocol": "http",
+        "addr": "127.0.0.1",
+        "port": 2000
+    },
+    "database": {
+        "dsn": "root:mysql@udai@tcp(udai.com:3306)/meta?charset=utf8&parseTime=true",
+        "max_idle": 5
+    }
+}

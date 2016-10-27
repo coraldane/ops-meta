@@ -1,0 +1,171 @@
+{{template "layout/head.html" .}}
+
+<div class="form-group">
+	<div class="highlight">
+		<form id="itemForm" class="form-inline">
+			<input type="hidden" name="hostGroupId" value="{{.hostGroupId}}"/>
+			<div class="form-group">
+				<label class="control-label">关联类型: </label>
+				<select class="form-control" name="relType">
+					<option value="">全部</option>
+					<option value="fixed">固定值</option>
+					<option value="regex">正则</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="control-label">关联属性: </label>
+				<select class="form-control" name="propName">
+					<option value="">全部</option>
+					<option value="hostname">Hostname</option>
+					<option value="ip">IP</option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="control-label">关联值: </label>
+				<input type="text" class="form-control" name="propValue" size="20"/>
+			</div>
+			<button type="button" class="btn btn-info" onclick="doSearch()"><span class="glyphicon glyphicon-search"></span> 查 询</button>
+			<a class="btn btn-href" onclick="editNode(this, 0)">新增</a>
+		</form>
+	</div>
+	<div class="clearfix" style="height:10px;"></div>
+	<table id="data-table"></table>
+
+	<form id="hiddenForm" class="form-horizontal validate">
+		<input type="hidden" name="hostGroupId" value="{{.hostGroupId}}"/>
+		<span id="editDialogDiv"></span>
+	</form>
+</div>
+
+{{template "layout/scripts.html" .}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+	queryForList();
+});
+
+function doSearch() {
+	$('#data-table').bootstrapTable('refresh', {silent : true});
+}
+
+function queryForList() {
+	$('#data-table').bootstrapTable({
+		method : 'post',
+		url : 'admin/relEndpointGroup/query',
+		queryParams : function(params) {
+			return $.extend($("#itemForm").formToJSON(), params);
+		},
+		cache : false,
+		striped : true,
+		pagination : true,
+		showRefresh : false,
+		sidePagination : 'server',
+		pageSize : 5,
+		striped : true,
+		pageList : [ 5, 10, 20, 50, 100 ],
+		minimumCountColumns : 2,
+		clickToSelect : true,
+		formatShowingRows : function(pageFrom, pageTo, totalRows) {
+			return '显示第 ' + pageFrom + ' 到第 ' + pageTo + ' 条记录，总共 ' + totalRows + ' 条记录';
+		},
+		formatRecordsPerPage : function(pageNumber) {
+			return '每页显示 ' + pageNumber + ' 条记录';
+		},
+		columns : [
+			{
+				field : 'Id',
+				title : '序号',
+				formatter : function(value, row, index) {
+					var options = $('#data-table').bootstrapTable('getOptions');
+					return (options.pageNumber -1) * options.pageSize + index + 1;
+				}
+			},
+			{
+				field : 'RelType',
+				title : '关联类型',
+				formatter : function(value, row, index) {
+					return "regex" == value?"正则":"固定值";
+				}
+			},
+			{
+				field : 'PropName',
+				title : '关联属性'
+			},
+			{
+				field : 'PropValue',
+				title : '关联值'
+			},
+			{
+				field : 'GmtCreate',
+				title : '创建时间',
+				formatter : function(value, row, index) {
+					return new Date(value).format("yyyy-MM-dd hh:mm:ss");
+				}
+			},
+			{
+				field : 'GmtModified',
+				title : '最近修改时间',
+				formatter : function(value, row, index) {
+					return new Date(value).format("yyyy-MM-dd hh:mm:ss");
+				}
+			},
+			{
+				field : 'Id',
+				title : '操作',
+				formatter : function(value, row, index) {
+					var strArray = new Array();
+					strArray.push('<div class="btn-group">');
+					strArray.push('<button type="button" class="btn btn-default" onclick="editNode(this,\''+row.Id+'\')"> 编辑 </button>');
+					strArray.push('<button type="button" class="btn btn-default" onclick="deleteNode(this,\''+row.Id+'\')"> 删除 </button>');
+					strArray.push('</div>');
+					return strArray.join('');
+				}
+			}
+		],
+		responseHandler : function(res) {
+			return {
+				rows : null == res.items?[]:res.items,
+				total : res.total
+			}
+		}
+	});
+}
+
+function editNode(target, id){
+	ajaxhtml("#editDialogDiv", "admin/relEndpointGroup/edit?Id=" + id)
+}
+
+function saveNode(target){
+	var form = $("#hiddenForm");
+	var validator = $(form).validate({meta:"validate"});
+	if(validator.form()){
+		$(form).goAjax({semantic: false,
+			url: "admin/relEndpointGroup/save",
+			data:{},
+			success: function(jsonData) {
+				if(true == jsonData.success){
+       				$.message("保存成功", {onclose: function(){
+       					window.location.reload();
+       				}});
+       			} else {
+       				$.message('保存失败: ' + jsonData.message);
+       			}
+			}
+		});
+	}
+}
+
+function deleteNode(target, id){
+	$.postEx("admin/relEndpointGroup/delete", {Id: id}, function(jsonData){
+		if(true == jsonData.success){
+       		$.message("保存成功", {onclose: function(){
+       			window.location.reload();
+       		}});
+       	} else {
+       		$.message('保存失败: ' + jsonData.message);
+       	}
+	}, "json");
+}
+</script>
+
+{{template "layout/foot.html" .}}

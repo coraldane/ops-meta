@@ -1,0 +1,89 @@
+{{template "layout/head.html" .}}
+{{template "layout/top.html" .}}
+
+<div class="clearfix" style="height:40px;"></div>
+<div class="main-sm">
+  		<h1>杭州研发中心</h1>
+  		<h3>从这里开始，登录</h3>
+  		<div id="error-span"></div>
+  		<div class="clearfix" style="height:10px;"></div>
+		<div class="green-box" style="width:400px;">
+			<div class="well-lg">
+				<form id="loginForm" class="form-horizontal validate" 
+					method="post" role="form">
+					<input type="hidden" name="originURL" value="{{.originURL}}"/>
+					<div class="form-group">
+						<div class="col-xs-11">
+							<label class="control-label">您的用户名</label>
+							<input type="text" class="form-control" id="userName" name="userName" placeholder="用户名"
+								required="*" validateChar="true">
+						</div>
+						<div class="col-xs-1">
+							<br/>
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-11">
+							<label class="control-label">密 码</label>
+							<input type="password" class="form-control" name="loginPwd" placeholder="密码"
+								required="*" onkeypress="javascript:autoSubmit(event);">
+						</div>
+						<div class="col-xs-1">
+							<br/>
+							<span class="error"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-11">
+							<button type="button" class="btn btn-primary btn-lg" style="width:100%" onclick="login();">登 录</button>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-xs-11">
+							<a href="user/findPassword" target="_blank" tabindex="7">忘记密码</a>
+							&nbsp; &nbsp; &nbsp;
+							<!--
+							<a href="user/register" tabindex="6">立即注册</a>
+							-->
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+
+{{template "layout/scripts.html" .}}
+
+<script type="text/javascript">
+$(document).ready(function(){
+	$("#userName").focus();
+});
+
+function login(){
+	var form = $("#loginForm");
+	var validator = $(form).validate({meta:"validate"});
+	if(validator.form()){
+        $(form).goAjax({
+    		semantic: false,
+    		url: 'user/login',
+    		data:{},
+    		success: function(jsonData) {
+    			if(true == jsonData.success){
+    				window.location.href = jsonData.message;
+    			} else {
+    				$("#error-span").alert({type: "alert-danger", text: jsonData.message});
+    			}
+    		}
+    	});
+	}
+}
+
+function autoSubmit(event){
+	if(event.keyCode==13){
+		login();
+	}
+}
+</script>
+
+{{template "layout/foot.html" .}}
